@@ -1,9 +1,11 @@
 {
   "name": "create-tivex",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Create tivex project",
   "type": "module",
-  "main": "index.js",
+  "bin": {
+    "create-tivex": "index.js"
+  },
   "scripts": {},
   "repository": {
     "type": "git",

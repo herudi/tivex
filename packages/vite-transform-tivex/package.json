@@ -1,6 +1,6 @@
 {
   "name": "vite-transform-tivex",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "Vite plugins for transform tivex",
   "main": "./dist/index.js",
@@ -16,8 +16,10 @@
     "@rollup/plugin-typescript": "^12.1.2",
     "rollup": "^4.41.1",
     "rollup-plugin-dts": "^6.2.1",
-    "tslib": "^2.8.1",
-    "tivex-transform": "^0.0.1"
+    "tslib": "^2.8.1"
+  },
+  "dependencies": {
+    "tivex-transform": "latest"
   },
   "files": [
     "dist"

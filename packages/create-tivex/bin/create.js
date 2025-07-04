@@ -17,7 +17,7 @@ const templates = [
 const LANG_LIST = [
   {
     name: 'typescript',
-    display: 'Typescript (recomended)',
+    display: 'Typescript (recommended)',
     templates: templates,
   },
   {
@@ -202,4 +202,6 @@ export async function createProject(param, cwd) {
   }
   console.log(`  npm install`);
   console.log(`  npm run dev`);
+  console.log(`  npm run build`);
+  console.log(`  npm run preview`);
 }
