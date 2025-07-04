@@ -1,0 +1,28 @@
+{
+  "name": "tivex-monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "publish": "npm publish --workspaces --access public",
+    "dev": "vite",
+    "build:dev": "vite build",
+    "preview:dev": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest"
+  },
+  "workspaces": [
+    "packages/tivex",
+    "packages/tivex-transform",
+    "packages/vite-transform-tivex",
+    "packages/create-tivex"
+  ],
+  "devDependencies": {
+    "happy-dom": "^18.0.1",
+    "prettier": "3.6.2",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  },
+  "repository": "git+https://github.com/herudi/tivex.git"
+}

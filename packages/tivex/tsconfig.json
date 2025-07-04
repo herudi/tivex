@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "target": "es2015"
+  }
+}

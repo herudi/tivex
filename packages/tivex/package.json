@@ -1,0 +1,61 @@
+{
+  "name": "tivex",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "A Small, JSX library for creating Reactive-UIs.",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "unpkg": "./dist/index.js",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "React",
+    "Reactivity",
+    "Signal",
+    "Declarative",
+    "UI",
+    "JSX",
+    "tivex",
+    "Reactive UI",
+    "Frontend"
+  ],
+  "author": "Herudi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/herudi/tivex"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "rollup": "^4.41.1",
+    "rollup-plugin-dts": "^6.2.1",
+    "tslib": "^2.8.1"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./jsx-runtime": {
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js"
+    },
+    "./flow": {
+      "types": "./dist/flow.d.ts",
+      "import": "./dist/flow.js"
+    }
+  }
+}

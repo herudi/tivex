@@ -1,0 +1,38 @@
+{
+  "name": "vite-transform-tivex",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Vite plugins for transform tivex",
+  "main": "./dist/index.js",
+  "keywords": [],
+  "author": "Herudi",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "rollup": "^4.41.1",
+    "rollup-plugin-dts": "^6.2.1",
+    "tslib": "^2.8.1",
+    "tivex-transform": "^0.0.1"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/herudi/tivex"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  }
+}

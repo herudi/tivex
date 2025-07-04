@@ -1,0 +1,22 @@
+{
+  "name": "tivex-app-ts",
+  "version": "0.0.1",
+  "private": true,
+  "description": "tivex app for typescript",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "tivex": "latest"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-transform-tivex": "latest"
+  }
+}
