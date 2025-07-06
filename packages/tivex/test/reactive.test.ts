@@ -119,9 +119,12 @@ describe('createComputed', () => {
 
   it('should handle error with custom error handler', () => {
     const errorHandler = vi.fn();
-    const computed = createComputed(() => {
-      throw new Error('Test error');
-    }, errorHandler);
+    const computed = createComputed(
+      () => {
+        throw new Error('Test error');
+      },
+      { err: errorHandler }
+    );
 
     computed();
     expect(errorHandler).toHaveBeenCalledWith(expect.any(Error));

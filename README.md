@@ -2,7 +2,7 @@
 
 A Small, JSX library for creating Reactive-UIs.
 
-[![ci](https://github.com/herudi/tivex/workflows/ci/badge.svg)](https://github.com/herudi/tivex)
+[![ci](https://img.shields.io/github/actions/workflow/status/herudi/tivex/ci.yml?branch=master)](https://github.com/herudi/tivex)
 [![npm version](https://img.shields.io/badge/npm-0.0.1-blue.svg)](https://npmjs.org/package/tivex)
 [![License](https://img.shields.io/:license-mit-blue.svg)](http://badges.mit-license.org)
 [![download-url](https://img.shields.io/npm/dm/tivex.svg)](https://npmjs.org/package/tivex)
@@ -13,10 +13,11 @@ A Small, JSX library for creating Reactive-UIs.
 `Tivex` uses Fine-Grained Reactivity as a strategy, instead of
 DOM-Diffing/Virtual-DOM.
 
-Tivex is reactive UI library that allows you to build user interfaces
-using JSX syntax. It provides a simple and efficient way to create reactive
-components without the overhead of a virtual DOM or complex state management
-systems. Tivex is designed to be lightweight and easy to use, making it a great choice for building modern web applications.
+Tivex is reactive UI library that allows you to build user interfaces using JSX
+syntax. It provides a simple and efficient way to create reactive components
+without the overhead of a virtual DOM or complex state management systems. Tivex
+is designed to be lightweight and easy to use, making it a great choice for
+building modern web applications.
 
 ## Features
 
@@ -27,7 +28,8 @@ systems. Tivex is designed to be lightweight and easy to use, making it a great 
   that automatically update the UI when changed.
 - **Automatic Dependency Tracking**: Use `$effect` to create reactive effects
   that automatically re-run when their dependencies change.
-- **Control Flow Components**: Use `<For>`, `<Show>`, `<Switch>`, and `<ErrorBoundary>` for conditional rendering and list rendering.
+- **Control Flow Components**: Use `<For>`, `<Show>`, `<Switch>`, and
+  `<ErrorBoundary>` for conditional rendering and list rendering.
 - **Lazy Loading**: Use `$lazy` to load components asynchronously, improving
   performance and reducing initial load time.
 - **DOM Interaction**: Use `$mount` and `$unmount` for managing DOM interactions
@@ -96,7 +98,8 @@ Key benefits:
 `$state` is a reactive state object. it is like `useState` in React, but
 automatically tracks dependencies and updates the UI when the state changes.
 
-`$state` is a Proxy object, so you can access the state properties directly. you can use `$state` inside or outside components.
+`$state` is a Proxy object, so you can access the state properties directly. you
+can use `$state` inside or outside components.
 
 `Example 1: basic $state`
 
@@ -161,9 +164,9 @@ console.log(user.$json()); // { name: null, age: null }
 
 ### `$effect(cb)`
 
-`$effect` is a reactive effect that automatically tracks dependencies and re-runs
-when the dependencies change. it is like `useEffect` in React, but without the need to
-specify dependencies manually.
+`$effect` is a reactive effect that automatically tracks dependencies and
+re-runs when the dependencies change. it is like `useEffect` in React, but
+without the need to specify dependencies manually.
 
 ```ts
 import { $effect, $state } from 'tivex';
@@ -231,9 +234,8 @@ $batch(() => {
 ### `$computed(cb)`
 
 `$computed` is used to create a derived value that automatically updates when
-its dependencies change. It is useful for creating values that
-depend on other reactive state values and need to be recalculated when those
-values change.
+its dependencies change. It is useful for creating values that depend on other
+reactive state values and need to be recalculated when those values change.
 
 ```ts
 import { $computed, $effect, $state } from 'tivex';
@@ -255,11 +257,11 @@ user.lastName = 'Smith'; // Logs: "Full name: Jane Smith"
 
 ### `$ref(curValue?)`
 
-`$ref` is a reactive reference that can be used to create a mutable reference
-to a value. It is similar to `useRef` in React, but it automatically tracks
+`$ref` is a reactive reference that can be used to create a mutable reference to
+a value. It is similar to `useRef` in React, but it automatically tracks
 dependencies and updates the UI when the value changes. It is useful for
-creating mutable references to values that need to be updated in the UI, such
-as form inputs or DOM elements.
+creating mutable references to values that need to be updated in the UI, such as
+form inputs or DOM elements.
 
 ```tsx
 import { $ref } from 'tivex';
@@ -273,9 +275,9 @@ console.log(data.current); // Logs: john doe
 
 ### `$mount(cb)`
 
-`$mount` is used to run a callback function when the component is mounted.
-It is useful for performing side effects or DOM manipulations when the component
-is first rendered.
+`$mount` is used to run a callback function when the component is mounted. It is
+useful for performing side effects or DOM manipulations when the component is
+first rendered.
 
 ```tsx
 import { $mount, $ref } from 'tivex';
@@ -318,13 +320,48 @@ const Home = () => {
 };
 ```
 
+### `$context(ctx)`
+
+`$context` is used to access the current context value in a component. It is
+similar to React's `useContext` hook, but it is designed for Tivex's reactive
+system. It allows you to access the state provided by a context in components,
+making it easy to share state across components without prop drilling.
+
+```tsx
+import { $context, $state, createContext } from 'tivex';
+
+const ThemeContext = createContext();
+
+const InnerComponent = () => {
+  const theme = $context(ThemeContext);
+  return <div>Current theme: {theme.value}</div>;
+};
+
+const App = () => {
+  const themeState = $state({ value: 'light' });
+
+  const switchTheme = () => {
+    themeState.value = themeState.value === 'light' ? 'dark' : 'light';
+  };
+  return (
+    <div>
+      <h1>My App</h1>
+      <button onClick={switchTheme}>Switch Theme</button>
+      <ThemeContext state={themeState}>
+        <InnerComponent />
+      </ThemeContext>
+    </div>
+  );
+};
+```
+
 ### `bind:*` for data-binding
 
 `bind:*` is used for two-way data binding in forms and inputs. It allows you to
 bind the value of an input element to a reactive state property, so that when
 the input value changes, the state property is automatically updated, and vice
-versa. This is similar to the `value` and `onChange` props in React, but
-it is more concise and easier to use in Tivex.
+versa. This is similar to the `value` and `onChange` props in React, but it is
+more concise and easier to use in Tivex.
 
 ```tsx
 const UserForm = () => {
@@ -358,10 +395,10 @@ const UserForm = () => {
 ### `$lazy(importFn)`
 
 `$lazy` is used to load components asynchronously, improving performance and
-reducing initial load time. It is similar to `React.lazy` but designed for Tivex.
-It allows you to define a component that will be loaded only when it is needed,
-which can help reduce the initial bundle size and improve the loading speed of
-your application.
+reducing initial load time. It is similar to `React.lazy` but designed for
+Tivex. It allows you to define a component that will be loaded only when it is
+needed, which can help reduce the initial bundle size and improve the loading
+speed of your application.
 
 > Note: `$lazy` requires `<Suspense>`.
 
@@ -386,9 +423,10 @@ const App = () => {
 ## Control-Flow
 
 Control-flow components are used to manage the rendering of UI elements based on
-conditions or lists. They provide a way to conditionally render elements, iterate
-over lists, and handle asynchronous loading of components. Tivex provides several
-control-flow components, including `<For>`, `<Show>`, `<Switch>`, `<Match>`, and `<ErrorBoundary>`.
+conditions or lists. They provide a way to conditionally render elements,
+iterate over lists, and handle asynchronous loading of components. Tivex
+provides several control-flow components, including `<For>`, `<Show>`,
+`<Switch>`, `<Match>`, and `<ErrorBoundary>`.
 
 Control-Flow inspired by
 [solid-js](https://docs.solidjs.com/concepts/control-flow/list-rendering).
@@ -398,11 +436,11 @@ import control-flow from `tivex/flow`.
 
 The `<For>` component is used for iterating over a list of items and rendering
 each item in the list. It takes an `each` prop that defines the list to iterate
-over, and it can also take a `fallback` prop that defines what to render when the
-list is empty. The children of the `<For>` component are rendered for each item
-in the list, and the current item and index are passed as arguments to the
-children function. It is <i>recommended</i> if your array is
-interactive with `add`/`update`/`delete`.
+over, and it can also take a `fallback` prop that defines what to render when
+the list is empty. The children of the `<For>` component are rendered for each
+item in the list, and the current item and index are passed as arguments to the
+children function. It is <i>recommended</i> if your array is interactive with
+`add`/`update`/`delete`.
 
 ```tsx
 import { For } from 'tivex/flow';
@@ -431,9 +469,9 @@ const User = () => {
 The `<Suspense>` component is used to handle asynchronous loading of components.
 It takes a `fallback` prop that defines what to render while the component is
 loading. The children of the `<Suspense>` component are the components that will
-be loaded asynchronously. It allows you to define a loading state for components that are loaded
-asynchronously, which can help improve the user experience by providing feedback
-while the component is loading.
+be loaded asynchronously. It allows you to define a loading state for components
+that are loaded asynchronously, which can help improve the user experience by
+providing feedback while the component is loading.
 
 ```tsx
 import { $lazy } from 'tivex';
@@ -501,14 +539,13 @@ import { Show } from 'tivex/flow';
 ### `<Switch>` & `<Match>`
 
 The `<Switch>` component is used for conditional rendering based on multiple
-conditions. It takes a fallback prop that defines what to render when none of the
-conditions match. Inside the `<Switch>`, you can use `<Match>` components to
-define individual conditions. Each `<Match>` takes a when prop that specifies the
-condition to match. When a condition is met, the corresponding children of the
-`<Match>` component are rendered. If no conditions match, the fallback content
-of the `<Switch>` is displayed.
-This is similar to a switch statement in JavaScript, where you can have multiple
-cases and a default case.
+conditions. It takes a fallback prop that defines what to render when none of
+the conditions match. Inside the `<Switch>`, you can use `<Match>` components to
+define individual conditions. Each `<Match>` takes a when prop that specifies
+the condition to match. When a condition is met, the corresponding children of
+the `<Match>` component are rendered. If no conditions match, the fallback
+content of the `<Switch>` is displayed. This is similar to a switch statement in
+JavaScript, where you can have multiple cases and a default case.
 
 ```tsx
 import { Match, Switch } from 'tivex/flow';
@@ -530,9 +567,10 @@ import { Match, Switch } from 'tivex/flow';
 
 The `<ErrorBoundary>` component is used to catch errors in the component tree
 and display a fallback UI when an error occurs. It takes a fallback prop that
-defines what to render when an error is caught. The children of the `<ErrorBoundary>`
-are the components that will be monitored for errors. If an error occurs in any of
-the children, the fallback UI is displayed instead of the erroring component.
+defines what to render when an error is caught. The children of the
+`<ErrorBoundary>` are the components that will be monitored for errors. If an
+error occurs in any of the children, the fallback UI is displayed instead of the
+erroring component.
 
 `Simple Catch`
 
@@ -648,7 +686,8 @@ render(<Todo />, document.body);
 
 ## Props
 
-Props in Tivex are reactive `$computed` and behind the Proxy is because it needs to update reactivity. can be used to pass data to components.
+Props in Tivex are reactive `$computed` and behind the Proxy is because it needs
+to update reactivity. can be used to pass data to components.
 
 > Props are not supported for destructuring when updating reactivity.
 
@@ -699,7 +738,8 @@ const Double = (props) => {
 
 ### `props.$default`
 
-`$default` is used to set default props for a component. it is called when the component is first rendered and can be used to set initial values for props.
+`$default` is used to set default props for a component. it is called when the
+component is first rendered and can be used to set initial values for props.
 
 ```tsx
 const Double = (props) => {
@@ -710,7 +750,9 @@ const Double = (props) => {
 
 ### `props.children`
 
-`children` is used to pass children elements to a component. it is similar to the `children` prop in React, but it is reactive and can be used to update the children dynamically.
+`children` is used to pass children elements to a component. it is similar to
+the `children` prop in React, but it is reactive and can be used to update the
+children dynamically.
 
 ```tsx
 const Wrapper = (props) => {

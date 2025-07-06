@@ -4,6 +4,9 @@ package.lock.json
 pnpm-lock.yaml
 yarn.lock
 .DS_Store
+/test.js
+/index.html
+/index.tsx
 /.cache
 /dev
 /backup

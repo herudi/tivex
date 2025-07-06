@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { h, options } from '../src/jsx.js';
+import { h } from '../src/jsx.js';
 
 describe('Fragment', () => {
   it('renders multiple children without adding extra nodes', () => {
@@ -11,12 +11,5 @@ describe('Fragment', () => {
     );
     expect(fragment.type).toBe(h.Fragment);
     expect(Array.isArray(fragment.props['children'])).toEqual(true);
-  });
-});
-
-describe('options.arrDiff', () => {
-  it('returns false by default', () => {
-    const result = options.arrDiff(1, 2);
-    expect(result).toBe(false);
   });
 });

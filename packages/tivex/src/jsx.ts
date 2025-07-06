@@ -96,10 +96,12 @@ export const isValidElement = (v: TAny) => isObject(v) && isNotNull(v[$jsx]);
  * - `clean`: If true, it will clean up the rendered element after rendering.
  * - `err`: An error handler function to handle errors during rendering.
  * - `ns`: The namespace for the element, used for SVG or MathML elements.
+ * - `ctx`: An object containing a component function (`c`) and a value (`v`) that can be used for context in rendering.
  */
 export type OptRender = {
   clean?: boolean;
   err?: (err: Error) => JSX.Element;
+  ctx?: Map<FC, TAny>;
   ns?: string;
 };
 
@@ -113,8 +115,9 @@ export type OptRender = {
 export const options: {
   renderToString?: (elem: TAny) => string;
   _err?: TAny;
-  arrDiff: <T, O>(newVal: T, oldVal: O) => boolean;
-} = { arrDiff: () => false };
+  _ctx?: Map<FC, TAny>;
+  arrDiff?: <T, O>(newVal: T, oldVal: O) => boolean;
+} = {};
 export let curClean!: Set<CB<void>>;
 const renderWithCleanup = (
   elem: JSXNode,
@@ -151,9 +154,11 @@ const renderWithCleanup = (
  * document.body.appendChild(renderedElement);
  */
 export const jsxRender = (elem: TAny, opts: OptRender = {}) => {
-  const prev = options._err;
+  const err = options._err;
+  const ctx = options._ctx;
   if (opts.clean == NULL) opts.clean = true;
-  options._err = opts.err;
+  if (opts.err) options._err = opts.err;
+  if (opts.ctx) options._ctx = new Map(opts.ctx);
   try {
     if (IS_CLIENT) {
       return opts.clean
@@ -163,6 +168,7 @@ export const jsxRender = (elem: TAny, opts: OptRender = {}) => {
     const toStr = options.renderToString;
     return toStr ? toStr(elem) : elem;
   } finally {
-    options._err = prev;
+    options._err = err;
+    options._ctx = ctx;
   }
 };

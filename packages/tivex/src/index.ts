@@ -27,6 +27,9 @@ export {
   $state,
   $unmount,
   $untrack,
+  $context,
+  createContext,
+  type Context,
   type State,
 } from './reactive.js';
 

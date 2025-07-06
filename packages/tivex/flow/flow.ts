@@ -55,12 +55,13 @@ export const Suspense: FC<{ fallback?: JSXNode }> = ({
 }) => {
   const state = $state({ v: fallback });
   const err = options._err;
+  const ctx = options._ctx;
   renderAsync(children as any[])
     .then((res) => (state.v = res))
     .catch(err);
   return (() => {
     const comp = h(Fragment, NULL, state.v);
-    return $untrack(() => jsxRender(comp, { err }));
+    return $untrack(() => jsxRender(comp, { err, ctx }));
   }) as JSX.Element;
 };
 
@@ -134,7 +135,8 @@ export const For = <T extends Array<any>>(props: {
     throw new Error('Cannot find callback');
   }
   const err = options._err,
-    temp = new Map();
+    temp = new Map(),
+    ctx = options._ctx;
   return () => {
     const { each, fallback } = props;
     if (fallback && !each.length) return fallback;
@@ -162,7 +164,7 @@ export const For = <T extends Array<any>>(props: {
         if (isFunc(ret.type) && isArray(ret.props.children)) {
           ret = h('t-item', NULL, ret);
         }
-        return jsxRender(ret, { err });
+        return jsxRender(ret, { err, ctx });
       });
       res['$c'] = { s: 'i', w: state, i };
       temp.set(key, res);
@@ -257,9 +259,10 @@ export const ErrorBoundary: FC<{ fallback: (err: Error) => JSX.Element }> = ({
     cleanup(state.v);
     state.v = render(fallback(e));
   };
-  const render = (elem: any) => $untrack(() => jsxRender(elem, { err }));
+  const ctx = options._ctx;
+  const render = (elem: any) => $untrack(() => jsxRender(elem, { err, ctx }));
   try {
-    state.v = render(h(Fragment, NULL, ...(children as any)));
+    state.v = render(h(Fragment, NULL, children));
   } catch (e) {
     err(e);
   }

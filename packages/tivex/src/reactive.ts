@@ -1,4 +1,11 @@
-import { curClean, h, isValidElement, jsxRender } from './jsx.js';
+import {
+  curClean,
+  h,
+  isValidElement,
+  jsxRender,
+  options,
+  OptRender,
+} from './jsx.js';
 import type { CB, FC, JSXProps, TAny } from './types.js';
 import {
   $brand,
@@ -65,6 +72,7 @@ export type State<T> = T & {
   $reset(): void;
   $signal<P extends keyof T>(key: P): Signal<T[P]>;
   $peek<P extends keyof T>(key: P): T[P];
+  $set(newObj: Partial<T>): void;
 };
 
 /**
@@ -102,6 +110,12 @@ export const $state = <T extends Record<string, TAny>>(
         return () =>
           $batch(() => {
             for (let k in state) state[k].set(initState[k]);
+          });
+      }
+      if (prop === '$set') {
+        return (newObj: T) =>
+          $batch(() => {
+            for (let k in newObj) withCheck(state, k).set(newObj[k]);
           });
       }
       const signal = withCheck(target, prop);
@@ -227,7 +241,7 @@ export interface ComputedCore<T> {
  */
 export const createComputed = <T>(
   fn: CB<T>,
-  err?: (err: Error) => TAny
+  opts: OptRender = {}
 ): ComputedCore<T> => {
   const sig = createSignal<T>();
   let fx!: Effect, prev: TAny, res: TAny;
@@ -236,7 +250,7 @@ export const createComputed = <T>(
     if (isArray(cur)) return cur;
     else if (isFunc(cur) && cur.length === 0) cur = cur();
     if (!deepEqual(cur, prev)) {
-      res = isValidElement(cur) ? $untrack(() => jsxRender(cur, { err })) : cur;
+      res = isValidElement(cur) ? $untrack(() => jsxRender(cur, opts)) : cur;
     }
     prev = cur;
     return res;
@@ -248,7 +262,7 @@ export const createComputed = <T>(
         try {
           sig.set(recompute(fx, cb));
         } catch (e) {
-          if (err) return err(e);
+          if (opts.err) return opts.err(e);
           else throw e;
         }
       });
@@ -345,3 +359,52 @@ export const $lazy = <T>(
     res ||
     asyncFunc(props).then((el: any) => (res = h(el.default || el, props)));
 };
+
+export type Context<T> = FC<{ state?: T }>;
+
+/**
+ * Creates a context for managing state across components.
+ * This function is used to create a context that can be shared between components,
+ * allowing them to access and update shared state.
+ * It is similar to React's Context API but is designed for Tivex's reactive system.
+ * @param initState - An optional initial state for the context.
+ * @returns A context object that can be used to provide and consume state in components.
+ * @example
+ * const ThemeContext = createContext();
+ * const InnerComponent = () => {
+ *   const theme = $context(ThemeContext);
+ *   return <div>Current theme: {theme.value}</div>;
+ * }
+ *
+ * const App = () => {
+ *  const themeState = $state({ value: 'light' });
+ *  return (
+ *    <ThemeContext state={themeState}>
+ *      <InnerComponent />
+ *    </ThemeContext>
+ *  );
+ * }
+ */
+export const createContext = <T extends State<TAny>>(
+  initState?: T
+): Context<T> => {
+  const fc = (props: JSXProps<{ state?: T }>) => {
+    const ctx = new Map(options._ctx);
+    const err = options._err;
+    ctx.set(fc, props.state || initState);
+    return jsxRender(props.children, { ctx, err });
+  };
+  return fc;
+};
+
+/**
+ * Retrieves the current context value for a given context.
+ * This function is used to access the state provided by a context in components.
+ * It is similar to React's useContext hook but is designed for Tivex's reactive system.
+ * @param ctx - The context object created by `createContext`.
+ * @returns The current state value of the context.
+ * @example
+ * const theme = $context(ThemeContext);
+ * console.log(theme.value); // Outputs the current theme value from the context
+ */
+export const $context = <T>(ctx: Context<T>): T => options._ctx.get(ctx);

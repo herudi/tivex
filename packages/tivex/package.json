@@ -1,6 +1,6 @@
 {
   "name": "tivex",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "A Small, JSX library for creating Reactive-UIs.",
   "types": "./dist/index.d.ts",

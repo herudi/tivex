@@ -35,7 +35,7 @@ const createTextNode = (v: TAny) => document.createTextNode(v);
 const createComment = (v: TAny) => document.createComment(v);
 
 const isEvent = (v: TAny) => v[0] == 'o' && v[1] == 'n';
-const applyAttr = (dom: Element, k: string, val: TAny, onErr: TAny) => {
+const applyAttr = (dom: Element, k: string, val: TAny, opts: OptRender) => {
   if (!reg_props.test(k) && k !== dangerHTML) {
     const key = mutateAttr[k] || k.toLowerCase();
     if (key.startsWith('bind:')) {
@@ -56,18 +56,18 @@ const applyAttr = (dom: Element, k: string, val: TAny, onErr: TAny) => {
           }
         );
       }
-      applyAttr(dom, _key, val, onErr);
-    } else if (isFunc(val) && !val.$d) {
+      applyAttr(dom, _key, val, opts);
+    } else if (isFunc(val)) {
       if (val[$brand]) {
-        val.watch((newVal: TAny) => applyAttr(dom, key, newVal, onErr));
-        applyAttr(dom, key, val(), onErr);
+        val.watch((newVal: TAny) => applyAttr(dom, key, newVal, opts));
+        applyAttr(dom, key, val(), opts);
       } else if (isEvent(key)) {
         addEvent(dom, k, val);
-      } else {
-        !val.length && applyAttr(dom, key, createComputed(val, onErr), onErr);
+      } else if (!val.length) {
+        applyAttr(dom, key, createComputed(val, opts), opts);
       }
     } else if (isObject(val)) {
-      applyAttr(dom, key, objToStr(val, key), onErr);
+      applyAttr(dom, key, objToStr(val, key), opts);
     } else {
       const name = dom.nodeName;
       const hasKey = key in dom;
@@ -139,7 +139,7 @@ export const isFrag = (v: TAny) => v instanceof DocumentFragment;
 const reaction = (sig: Signal<TAny> | ComputedCore<TAny>, opts: OptRender) => {
   const node = renderToElement(sig(), opts);
   sig.watch((newVal, oldVal) => {
-    if (options.arrDiff(newVal, oldVal)) return;
+    if (options.arrDiff && options.arrDiff(newVal, oldVal)) return;
     const newNode = renderToElement(newVal, opts);
     const oldNode = sig['_n'];
     if (oldNode[$fragment]) {
@@ -229,7 +229,7 @@ export function renderToElement(elem: TAny, opts: OptRender = {}) {
   if (elem == NULL || typeof elem === 'boolean') return createTextNode('');
   if (isFunc(elem)) {
     if (elem[$brand]) return reaction(elem, opts);
-    return reaction(createComputed(elem, opts.err), opts);
+    return reaction(createComputed(elem, opts), opts);
   }
   if (isString(elem) || isNumber(elem)) return createTextNode(elem.toString());
   if (isArray(elem)) {
@@ -251,7 +251,7 @@ export function renderToElement(elem: TAny, opts: OptRender = {}) {
     if (type === 'select') {
       selectOptions(props.children, props['bind:value'] || props.value);
     }
-    for (let k in props) applyAttr(dom, k, props[k], opts.err);
+    for (let k in props) applyAttr(dom, k, props[k], opts);
     if (isObject(props.ref)) props.ref.current = dom;
     if (reg_void_elem.test(type)) return dom;
     if (isNotNull(props[dangerHTML])) dom.innerHTML = props[dangerHTML].__html;
