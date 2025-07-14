@@ -15,11 +15,15 @@ const isValidType = (type: string, isComp: boolean) => {
       type !== 'Function')
   );
 };
-
-export function transform(code: string) {
+export type TransformOptions = parser.ParserOptions;
+export function transform(code: string, opts: TransformOptions = {}) {
+  const plugins = new Set(opts.plugins ?? []);
+  plugins.add('typescript');
+  plugins.add('jsx');
+  opts.plugins = Array.from(plugins);
   const ast = parser.parse(code, {
     sourceType: 'module',
-    plugins: ['jsx'],
+    ...opts,
   });
   traverse(ast, {
     JSXSpreadAttribute(path) {

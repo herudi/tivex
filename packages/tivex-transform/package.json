@@ -1,6 +1,6 @@
 {
   "name": "tivex-transform",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Tivex core transform",
   "main": "./dist/index.js",
   "type": "module",
