@@ -24,7 +24,6 @@ export const reg_capture = /(PointerCapture)$|Capture$/i;
 const reg_non_dimentional =
   /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
 const Sym = Symbol;
-export const $jsx = Sym('$jsx');
 export const $fragment = Sym('$frag');
 export const $clean = Sym('$clean');
 export const $cleanFrag = Sym('$cleanFrag');

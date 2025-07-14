@@ -56,4 +56,21 @@ export default defineConfig([
     },
     plugins: [typescript(), dts()],
   },
+  {
+    input: './server/server.ts',
+    output: {
+      file: './dist/server.js',
+      format: 'esm',
+      sourcemap: true,
+    },
+    plugins: [terser(), typescript()],
+  },
+  {
+    input: './server/server.ts',
+    output: {
+      file: './dist/server.d.ts',
+      format: 'esm',
+    },
+    plugins: [typescript(), dts()],
+  },
 ]);
