@@ -1,184 +1,119 @@
-import { Node, parse } from 'acorn';
-import { simple } from 'acorn-walk';
-import { generate } from 'escodegen';
+import parser from '@babel/parser';
+import traverse_ from '@babel/traverse';
+import generate_ from '@babel/generator';
 
-const regPragma = /^(h|jsxDEV|jsxDev|jsxs|jsx)$/;
+const traverse = traverse_['default'] as typeof traverse_;
+const generate = generate_['default'] as typeof generate_;
 
-interface TNode extends Node {
-  [k: string]: any;
-}
-
-const toArrow = (node: TNode) => {
-  if (node.done) return;
-  const prev = { ...node };
-  node.type = 'ArrowFunctionExpression';
-  node.id = null;
-  node.expression = true;
-  node.generator = false;
-  node.async = false;
-  node.params = [];
-  node.body = prev;
-  node.done = true;
-  delete node.name;
-};
-const toClone = (node: TNode) => {
-  if (node.done) return;
-  const prev = { ...node };
-  node.type = 'LogicalExpression';
-  node.left = {
-    type: 'MemberExpression',
-    object: prev,
-    property: {
-      type: 'Identifier',
-      name: '$props',
-    },
-    computed: false,
-    optional: false,
-  };
-  node.operator = '??';
-  node.right = prev;
-  delete node.name;
-};
-const bindSignal = (node: TNode) => {
-  if (node.done) return;
-  const prev = { ...node };
-  const arg = prev.property?.name;
-  if (!arg) return;
-  node.type = 'CallExpression';
-  node.callee = {
-    type: 'MemberExpression',
-    object: prev.object,
-    property: {
-      type: 'Identifier',
-      name: '$signal',
-    },
-    computed: false,
-    optional: false,
-  };
-  node.arguments = [
-    {
-      type: 'Literal',
-      value: arg,
-      raw: `"${arg}"`,
-    },
-  ];
-  node.optional = false;
-  delete node.name;
-};
-const isPragma = (node: TNode) => {
-  return (
-    node?.type === 'CallExpression' && regPragma.test(node?.callee?.name || '')
-  );
-};
-const isProps = (node: TNode, isComp: boolean) => {
+const isValidType = (type: string, isComp: boolean) => {
   return (
     isComp ||
-    (!isPragma(node) &&
-      node.type !== 'Literal' &&
-      node.type !== 'ArrowFunctionExpression' &&
-      node.type !== 'FunctionExpression' &&
-      node.type !== 'FunctionDeclaration' &&
-      node.type !== 'Function')
+    (type !== 'Literal' &&
+      type !== 'ArrowFunctionExpression' &&
+      type !== 'FunctionExpression' &&
+      type !== 'FunctionDeclaration' &&
+      type !== 'Function')
   );
 };
-const isObjExpr = (n: TNode) => n.type === 'ObjectExpression';
 
 export function transform(code: string) {
-  const ast = parse(code, {
-    ecmaVersion: 'latest',
+  const ast = parser.parse(code, {
     sourceType: 'module',
-    allowHashBang: true,
+    plugins: ['jsx'],
   });
-  simple(ast, {
-    CallExpression(node) {
-      const name = (node.callee as any)?.name || '';
-      if (name === 'h') {
-        const args = node.arguments;
-        const isComp = () => (args[0] as any)?._comp != null;
-        args.forEach((node: TNode, i) => {
-          if (i === 0) {
-            if (node.type === 'Identifier') {
-              const name = node.name;
-              if (name && name[0] === name[0].toUpperCase()) {
-                node._comp = true;
-              }
+  traverse(ast, {
+    JSXSpreadAttribute(path) {
+      const prev = { ...path.node.argument };
+      const cloneExpr = {
+        type: 'JSXSpreadAttribute',
+        argument: {
+          type: 'LogicalExpression',
+          left: {
+            type: 'MemberExpression',
+            object: prev,
+            computed: false,
+            property: {
+              type: 'Identifier',
+              name: '$props',
+            },
+          },
+          operator: '??',
+          right: prev,
+        },
+      };
+      path.node.argument = cloneExpr.argument as any;
+    },
+    JSXExpressionContainer(path) {
+      const elem = path.findParent((path) => path.type === 'JSXElement');
+      const isComp = () => {
+        if (elem && elem.node.type === 'JSXElement') {
+          const name = elem.node.openingElement.name;
+          return (
+            name.type === 'JSXIdentifier' &&
+            name.name[0] === name.name[0]?.toUpperCase()
+          );
+        }
+        return false;
+      };
+      if (!isComp()) {
+        if (path.parent.type === 'JSXAttribute') {
+          const key = path.parent.name;
+          if (key.type === 'JSXIdentifier') {
+            const name = key.name;
+            if (name.startsWith('on') || name === 'ref') {
+              return;
             }
-          } else if (i === 1) {
-            isObjExpr(node) &&
-              node.properties.forEach((node: TNode) => {
-                node.shorthand = false;
-                if (node.type === 'Property') {
-                  const key = node.key ?? {};
-                  const value = node.value;
-                  const name = key.name || key.value || '';
-                  const isElem =
-                    !isComp() && (name.startsWith('on') || name === 'ref');
-                  if (isElem || !isProps(value, isComp())) return;
-                  if (!isComp() && name.startsWith('bind:')) {
-                    if (value.type === 'MemberExpression') {
-                      bindSignal(value);
-                    }
-                  } else {
-                    toArrow(value);
-                  }
-                } else if (node.type === 'SpreadElement') {
-                  toClone(node.argument);
-                }
-              });
           } else {
-            if (isProps(node, false)) toArrow(node);
-          }
-        });
-      } else if (['jsxDEV', 'jsxs', 'jsx'].includes(name)) {
-        const args = node.arguments;
-        const isComp = () => (args[0] as any)?._comp != null;
-        args.forEach((node: TNode, i) => {
-          if (i === 0) {
-            if (node.type === 'Identifier') {
-              const name = node.name;
-              if (name && name[0] === name[0].toUpperCase()) {
-                node._comp = true;
-              }
-            }
-          } else if (i === 1) {
-            if (isObjExpr(node)) {
-              const props = node.properties;
-              props.forEach((node: TNode) => {
-                node.shorthand = false;
-                if (node.type === 'Property') {
-                  const key = node.key ?? {};
-                  const value = node.value ?? {};
-                  if (key?.name === 'children') {
-                    if (value?.type === 'ArrayExpression') {
-                      const elems = value.elements || [];
-                      elems.forEach((node: TNode) => {
-                        isProps(node, false) && toArrow(node);
-                      });
-                    } else if (isProps(value, false)) {
-                      toArrow(value);
-                    }
-                  } else {
-                    const name = key.name || key.value || '';
-                    const isElem =
-                      !isComp() && (name.startsWith('on') || name === 'ref');
-                    if (isElem || !isProps(value, isComp())) return;
-                    if (!isComp() && name.startsWith('bind:')) {
-                      if (value.type === 'MemberExpression') {
-                        bindSignal(value);
-                      }
-                    } else {
-                      toArrow(value);
-                    }
-                  }
-                } else if (node.type === 'SpreadElement') {
-                  toClone(node.argument);
+            if (key.namespace.name === 'bind') {
+              const expr = path.node.expression;
+              if (expr.type === 'MemberExpression') {
+                if (
+                  expr.object.type === 'Identifier' &&
+                  expr.property.type === 'Identifier'
+                ) {
+                  const objName = expr.object.name;
+                  const propName = expr.property.name;
+                  const bindSignal = {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: objName,
+                      },
+                      computed: false,
+                      property: {
+                        type: 'Identifier',
+                        name: '$signal',
+                      },
+                    },
+                    arguments: [
+                      {
+                        type: 'StringLiteral',
+                        extra: { rawValue: propName, raw: `"${propName}"` },
+                        value: propName,
+                      },
+                    ],
+                  };
+                  path.node.expression = bindSignal as any;
                 }
-              });
+              }
+              return;
             }
           }
-        });
+        }
+      }
+      const expr = path.node.expression;
+      if (isValidType(expr.type, isComp())) {
+        const arrowFunction = {
+          type: 'ArrowFunctionExpression',
+          params: [],
+          body: expr,
+          expression: true,
+        };
+        path.node.expression = arrowFunction as any;
       }
     },
   });
-  return generate(ast);
+  return generate(ast, {}, code).code;
 }

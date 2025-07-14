@@ -11,10 +11,8 @@ import type {
 import {
   $clean,
   $cleanFrag,
-  $jsx,
   assign,
   IS_CLIENT,
-  isNotNull,
   isObject,
   NULL,
 } from './util.js';
@@ -57,7 +55,7 @@ export function h(
     type,
     props:
       children.length > 0 ? assign(assign({}, props), { children }) : props,
-    [$jsx]: 1,
+    $$tivex: true,
   } as TAny;
 }
 
@@ -89,7 +87,7 @@ h.Fragment = Fragment;
  * isValidElement('Hello'); // false
  * isValidElement(null); // false
  */
-export const isValidElement = (v: TAny) => isObject(v) && isNotNull(v[$jsx]);
+export const isValidElement = (v: TAny) => isObject(v) && v.$$tivex;
 
 /**
  * Options for rendering JSX elements.

@@ -1,6 +1,6 @@
 {
   "name": "tivex",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "description": "A Small, JSX library for creating Reactive-UIs.",
   "types": "./dist/index.d.ts",
@@ -56,6 +56,10 @@
     "./flow": {
       "types": "./dist/flow.d.ts",
       "import": "./dist/flow.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js"
     }
   }
 }
