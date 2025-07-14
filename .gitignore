@@ -4,7 +4,7 @@ package.lock.json
 pnpm-lock.yaml
 yarn.lock
 .DS_Store
-/test.js
+/server.tsx
 /index.html
 /index.tsx
 /.cache

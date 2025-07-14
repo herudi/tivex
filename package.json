@@ -6,6 +6,7 @@
     "build": "npm run build --workspaces --if-present",
     "publish": "npm publish --workspaces --access public",
     "dev": "vite",
+    "dev:server": "tsx watch server.tsx",
     "build:dev": "vite build",
     "preview:dev": "vite preview",
     "format": "prettier --write .",
@@ -19,8 +20,12 @@
     "packages/create-tivex"
   ],
   "devDependencies": {
+    "@types/express": "^5.0.3",
+    "esbuild": "^0.25.6",
+    "express": "^5.1.0",
     "happy-dom": "^18.0.1",
     "prettier": "3.6.2",
+    "tsx": "^4.20.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
   },
