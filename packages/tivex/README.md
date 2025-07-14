@@ -2,12 +2,6 @@
 
 A Small, JSX library for creating Reactive-UIs.
 
-[![ci](https://img.shields.io/github/actions/workflow/status/herudi/tivex/ci.yml?branch=master)](https://github.com/herudi/tivex)
-[![npm version](https://img.shields.io/badge/npm-0.0.1-blue.svg)](https://npmjs.org/package/tivex)
-[![License](https://img.shields.io/:license-mit-blue.svg)](http://badges.mit-license.org)
-[![download-url](https://img.shields.io/npm/dm/tivex.svg)](https://npmjs.org/package/tivex)
-[![gzip](https://img.shields.io/bundlephobia/minzip/tivex)](https://github.com/herudi/tivex)
-
 ## Core Concepts
 
 `Tivex` uses Fine-Grained Reactivity as a strategy, instead of
